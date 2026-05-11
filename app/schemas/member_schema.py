@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from typing import Optional, Any
 from datetime import datetime
 
+
 # POST /api/members
 class CreateMember(BaseModel):
     name: str

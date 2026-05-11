@@ -17,6 +17,7 @@ class CreateFolder(BaseModel):
             }
         }
 
+
 # PUT /api/folders/{folderId}
 class UpdateFolder(BaseModel):
     id: int
