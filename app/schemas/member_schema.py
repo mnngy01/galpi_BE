@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel
 from typing import Optional, Any
-from datetime import datetime
+from datetime import datetime, date
 
 
 # POST /api/members
@@ -10,7 +10,7 @@ class CreateMember(BaseModel):
     name: str
     memberId: str
     memberPw: str
-    birth: datetime.date
+    birth: date
     phone: str
 
     class Config:
@@ -30,7 +30,7 @@ class UpdateMember(BaseModel):
     name: str
     memberId: str
     memberPw: str
-    birth: datetime.date
+    birth: date
     phone: str
     aiRecommendAlert: bool
     aiSummary: bool
@@ -50,6 +50,24 @@ class UpdateMember(BaseModel):
 	            "aiRecommendAlert": True,
 	            "aiSummary": True,
 	            "aiSave": True,
-	            "createdAt": "2024-02-22T07:47:49.803Z"
+                "imageUrl": "photo.com",
+            }
+        }
+
+
+# GET /api/member/{memberId}
+class Response(BaseModel):
+    status_code: int
+    response_type: str
+    description: str
+    data: Optional[Any] = None
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "status_code": 200,
+                "response_type": "success",
+                "description": "Operation successful",
+                "data": "Sample data",
             }
         }

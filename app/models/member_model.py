@@ -1,20 +1,20 @@
 # member_model.py
 
 from beanie import Document
-from pydantic import BaseModel
-from datetime import datetime
+from pydantic import BaseModel, Field
+from datetime import datetime, date
 
 class Member(Document):
     name: str
     loginId: str
     loginPw: str
-    birth: datetime = datetime.date()
-    phone: int
+    birth: date
+    phone: str
     aiRecommendAlert: bool = True
     aiSummary: bool = True
     aiSave: bool = True
     imageUrl: str
-    createdAt: datetime = datetime.now()
+    createdAt: datetime = Field(default_factory = datetime.now)
 
     class Config:
         json_schema_extra = {
