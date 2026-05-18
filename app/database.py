@@ -3,6 +3,7 @@ from typing import List, Union
 
 from motor.motor_asyncio import AsyncIOMotorClient
 from beanie import PydanticObjectId
+from configrations import db
 
 from models.member_model import Member
 from models.bookmark_model import Bookmark
@@ -21,10 +22,10 @@ async def retrieve_member(memberId: PydanticObjectId) -> Member:
     member = await member_collection.get(memberId)
     if member:
         return {
-            "id": str(member._id),
+            "id": str(member.id),
             "name": member.name,
-            "memberId": member.loginId,
-            "memberPw": member.loginPw,
+            "loginId": member.loginId,
+            "loginPw": member.loginPw,
             "birth": member.birth,
             "phone": member.phone,
             "aiRecommendAlert": member.aiRecommendAlert,
@@ -35,12 +36,12 @@ async def retrieve_member(memberId: PydanticObjectId) -> Member:
         }
 
 async def add_member(new_member: Member) -> Member:
-    member = await new_member.create()
+    member = await db.member.insertOne(dict(new_member))
     return {
-        "id": str(member._id),
+        "id": str(member.id),
 	    "name": member.name,
-	    "memberId": member.loginId,
-	    "memberPw": member.loginPw, 
+	    "loginId": member.loginId,
+	    "loginPw": member.loginPw, 
 	    "birth": member.birth,
 	    "phone": member.phone,
 	    "createdAt": member.createdAt,

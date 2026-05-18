@@ -13,7 +13,7 @@ class Member(Document):
     aiRecommendAlert: bool = True
     aiSummary: bool = True
     aiSave: bool = True
-    imageUrl: str
+    imageUrl: str = None
     createdAt: datetime = Field(default_factory = datetime.now)
 
     class Config:

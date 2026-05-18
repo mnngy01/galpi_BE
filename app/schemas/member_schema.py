@@ -8,8 +8,8 @@ from datetime import datetime, date
 # POST /api/members
 class CreateMember(BaseModel):
     name: str
-    memberId: str
-    memberPw: str
+    loginId: str
+    loginPw: str
     birth: date
     phone: str
 
@@ -17,8 +17,8 @@ class CreateMember(BaseModel):
         json_schema_extra = {
             "example": {
                 "name": "김회원",
-                "memberId": "kimId",
-                "memberPw": "kimPw",
+                "loginId": "kimId",
+                "loginPw": "kimPw",
                 "birth": "2003-01-01",
                 "phone": "010-1234-5678",
             }
@@ -28,8 +28,8 @@ class CreateMember(BaseModel):
 # PUT /api/members/{memberId}
 class UpdateMember(BaseModel):
     name: str
-    memberId: str
-    memberPw: str
+    loginId: str
+    loginPw: str
     birth: date
     phone: str
     aiRecommendAlert: bool
@@ -42,8 +42,8 @@ class UpdateMember(BaseModel):
             "example": {
                 "id": 123,
 	            "name": "김회원",
-	            "memberId": "kimId",
-	            "memberPw": "kimPw", 
+	            "loginId": "kimId",
+	            "loginPw": "kimPw", 
 	            "birth": "2003-01-01",
 	            "phone": "010-1234-5555",
 	            "imageUrl": "http://",
