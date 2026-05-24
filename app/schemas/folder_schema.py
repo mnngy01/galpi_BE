@@ -22,7 +22,7 @@ class CreateFolder(BaseModel):
 class UpdateFolder(BaseModel):
     id: int
     name: str
-    higherFolderId: 1
+    higherFolderId: int = 1
 
     class Config:
         json_schema_extra = {
