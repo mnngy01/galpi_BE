@@ -3,7 +3,7 @@ from typing import List, Union
 
 from motor.motor_asyncio import AsyncIOMotorClient
 from beanie import PydanticObjectId
-from configrations import db
+# from configrations import db
 
 from models.member_model import Member
 from models.bookmark_model import Bookmark
@@ -36,7 +36,7 @@ async def retrieve_member(memberId: PydanticObjectId) -> Member:
         }
 
 async def add_member(new_member: Member) -> Member:
-    member = await db.member.insertOne(dict(new_member))
+    member = await new_member.insert()
     return {
         "id": str(member.id),
 	    "name": member.name,

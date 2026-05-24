@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Body, HTTPException
 from bson import ObjectId
-from configrations import collection
+# from configrations import collection
 from beanie import PydanticObjectId
 
 import database
