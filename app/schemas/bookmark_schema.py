@@ -6,7 +6,7 @@ from datetime import datetime
 
 
 # POST /api/folders/{folderId}/bookmarks
-class createBookmark(BaseModel):
+class CreateBookmark(BaseModel): # 얘만 앞글자 대문자 아니길래 수정함!
     id: int
     url: str
     folderId: int
@@ -30,7 +30,7 @@ class createBookmark(BaseModel):
 
 
 # PUT /api/bookmarks/{bookmarkId}
-class updateBookmark(BaseModel):
+class UpdateBookmark(BaseModel): # 얘만 앞글자 대문자 아니길래 수정함!
     url: str
     folderId: int
     imageUrl: str
