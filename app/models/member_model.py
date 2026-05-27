@@ -3,6 +3,7 @@
 from beanie import Document
 from pydantic import BaseModel, Field
 from datetime import datetime, date
+from typing import Optional
 
 class Member(Document):
     name: str
@@ -13,7 +14,7 @@ class Member(Document):
     aiRecommendAlert: bool = True
     aiSummary: bool = True
     aiSave: bool = True
-    imageUrl: str = None
+    imageUrl: Optional[str] = None
     createdAt: datetime = Field(default_factory = datetime.now)
 
     class Config:
