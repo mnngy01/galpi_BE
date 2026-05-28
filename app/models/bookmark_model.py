@@ -3,12 +3,14 @@
 from beanie import Document
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional, Any
+from services.ai_service import crawl_and_summarize
 
 class Bookmark(Document):
     url: str
     folderId: int
-    imageUrl: str
-    aiSummary: str
+    imageUrl: Optional[str] = None
+    aiSummary: Optional[str] = None
     like: bool = False
     createdAt: datetime = datetime.now()
 

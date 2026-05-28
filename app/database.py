@@ -2,7 +2,6 @@
 from typing import List, Union
 
 from motor.motor_asyncio import AsyncIOMotorClient
-from beanie import PydanticObjectId
 # from configrations import db
 
 from models.member_model import Member
@@ -20,7 +19,7 @@ Folder_collection = Folder
 
 
 # GET member
-async def retrieve_member(memberId: PydanticObjectId) -> Member:
+async def retrieve_member(memberId: str) -> Member:
     member = await member_collection.get(memberId)
     if member:
         return {
