@@ -10,7 +10,7 @@ router = APIRouter()
 
 
 @router.get("/folders/{folderId}")
-async def get_folder(folderId: str):
+async def get_folder(folderId: int):
     folder = await database.retrieve_folder(folderId)
     if folder:
         return {

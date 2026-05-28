@@ -4,15 +4,16 @@ from pydantic import BaseModel, Field
 from typing import Optional, Any
 from datetime import datetime
 
+
 # POST /api/folders/{folderId}/bookmarks
-class CreateBookmark(BaseModel):
-    # id: int, 몽고db가 자동으로 id 만들어줌
+class CreateBookmark(BaseModel): # 얘만 앞글자 대문자 아니길래 수정함!
+    id: int
     url: str
     folderId: int
-    # imageUrl: Optional[str] = None  # 서버 자동생성
-    # aiSummary: str # 서버 자동생성
+    imageUrl: str
+    aiSummary: str
     like: int = 0
-    # createdAt: datetime = Field(default_factory = datetime.now) # 서버 자동생성
+    createdAt: datetime = Field(default_factory = datetime.now)
 
     class Config:
         json_schema_extra = {
@@ -20,16 +21,17 @@ class CreateBookmark(BaseModel):
                 "id": 123,
                 "url": "string",
                 "folderId": 5,
-                # "imageUrl": "string",
-                # "aiSummary": "string",
+                "imageUrl": "string",
+                "aiSummary": "string",
                 "like": 0,
-                # "createdAt": "2024-02-22T07:47:49.803Z"
+                "createdAt": "2024-02-22T07:47:49.803Z"
             }
         }
 
 
 # PUT /api/bookmarks/{bookmarkId}
-class UpdateBookmark(BaseModel):
+class UpdateBookmark(BaseModel): # 얘만 앞글자 대문자 아니길래 수정함!
+    url: str
     folderId: int
     imageUrl: str
     like: int = 0
