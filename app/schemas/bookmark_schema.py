@@ -3,12 +3,13 @@
 from pydantic import BaseModel, Field
 from typing import Optional, Any
 from datetime import datetime
+from beanie import PydanticObjectId
 
 # POST /api/folders/{folderId}/bookmarks
 class CreateBookmark(BaseModel):
     # id: int, 몽고db가 자동으로 id 만들어줌
     url: str
-    folderId: int
+    folderId: Optional[PydanticObjectId] = None
     # imageUrl: Optional[str] = None  # 서버 자동생성
     # aiSummary: str # 서버 자동생성
     like: int = 0

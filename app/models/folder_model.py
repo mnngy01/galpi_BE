@@ -1,12 +1,14 @@
 # folder_model.py
 
-from beanie import Document
+from beanie import Document, PydanticObjectId
+
 from pydantic import BaseModel, Field
 from datetime import datetime
+from typing import Optional
 
 class Folder(Document):
     name: str
-    higherFolderId: int
+    higherFolderId: Optional[PydanticObjectId]
     createdAt: datetime = Field(default_factory = datetime.now)
 
     class Config:

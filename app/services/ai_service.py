@@ -5,15 +5,15 @@ from bs4 import BeautifulSoup
 from google import genai
 
 # API 키 설정 (나중에 .env로 분리 권장)
-GEMINI_API_KEY = "API 키 여기에"
+GEMINI_API_KEY = "여기다가 api키를 넣으면됩니다"
 client = genai.Client(api_key=GEMINI_API_KEY)
 
 
 async def crawl_url(url: str) -> str:
     """URL 접속해서 본문 텍스트 추출"""
     try:
-        async with httpx.AsyncClient(timeout=10) as client:
-            response = await client.get(url)
+        async with httpx.AsyncClient(timeout=10) as http_client:
+            response = await http_client.get(url)
         soup = BeautifulSoup(response.text, "html.parser")
 
         # 불필요한 태그 제거
@@ -36,7 +36,7 @@ async def summarize(text: str) -> str:
     try:
         prompt = f"다음 내용을 한국어로 2~3줄로 요약해줘:\n\n{text}"
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="gemini-2.5-flash",
             contents=prompt
         )
         return response.text

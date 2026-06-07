@@ -1,18 +1,17 @@
 # bookmark_model.py
 
-from beanie import Document
-from pydantic import BaseModel
+from beanie import Document, PydanticObjectId
+from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import Optional, Any
-from services.ai_service import crawl_and_summarize
+from typing import Optional
 
 class Bookmark(Document):
     url: str
-    folderId: int
+    folderId: Optional[PydanticObjectId]
     imageUrl: Optional[str] = None
     aiSummary: Optional[str] = None
     like: bool = False
-    createdAt: datetime = datetime.now()
+    createdAt: datetime = Field(default_factory=datetime.now)
 
     class Config:
         json_schema_extra = {
@@ -28,3 +27,6 @@ class Bookmark(Document):
 
     class Settings:
         name = "bookmark"
+        indexes = [
+            [("url", "text"), ("aiSummary", "text")]
+        ]

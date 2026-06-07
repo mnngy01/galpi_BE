@@ -14,7 +14,7 @@ router = APIRouter()
 
 
 @router.get("/members/{memberId}", response_description="Member Retrieved", response_model=Response)
-async def get_member(memberId: int):
+async def get_member(memberId: PydanticObjectId):
     member = await database.retrieve_member(memberId)
     if member:
         return {

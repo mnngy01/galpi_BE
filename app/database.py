@@ -1,5 +1,6 @@
 # database.py
 from typing import List, Union
+from beanie import PydanticObjectId
 
 from motor.motor_asyncio import AsyncIOMotorClient
 # from configrations import db
@@ -19,8 +20,8 @@ Folder_collection = Folder
 
 
 # GET member
-async def retrieve_member(memberId: str) -> Member:
-    member = await member_collection.get(memberId)
+async def retrieve_member(memberId: PydanticObjectId) -> dict:
+    member = await member_collection.find_one(Member.id == memberId)  # 수정: get → find_one
     if member:
         return {
             "id": str(member.id),
@@ -52,8 +53,8 @@ async def add_member(new_member: Member) -> Member:
 
 
 # GET folder
-async def retrieve_folder(folderId: str):
-    folder = await Folder_collection.get(folderId)
+async def retrieve_folder(folderId: PydanticObjectId) -> dict:
+    folder = await Folder_collection.find_one(Folder.id == folderId)  # 수정: get → find_one
     if folder:
         return {
             "id": str(folder.id),
@@ -75,13 +76,13 @@ async def add_folder(new_folder: Folder) -> dict:
 
 
 # GET bookmark
-async def retrieve_bookmark(bookmarkId: str):
-    bookmark = await Bookmark_collection.get(bookmarkId)
+async def retrieve_bookmark(bookmarkId: PydanticObjectId) -> dict:
+    bookmark = await Bookmark_collection.find_one(Bookmark.id == bookmarkId)  # 수정: get → find_one
     if bookmark:
         return {
             "id": str(bookmark.id),
             "url": bookmark.url,
-            "folderId": bookmark.folderId,
+            "folderId": str(bookmark.folderId) if bookmark.folderId else None,
             "imageUrl": bookmark.imageUrl,
             "aiSummary": bookmark.aiSummary,
             "like": bookmark.like,
@@ -95,7 +96,7 @@ async def add_bookmark(new_bookmark: Bookmark) -> dict:
     return {
         "id": str(bookmark.id),
         "url": bookmark.url,
-        "folderId": bookmark.folderId,
+        "folderId": str(bookmark.folderId) if bookmark.folderId else None,
         "imageUrl": bookmark.imageUrl,
         "aiSummary": bookmark.aiSummary,
         "like": bookmark.like,
