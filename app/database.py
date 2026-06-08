@@ -51,6 +51,29 @@ async def add_member(new_member: Member) -> Member:
 	    "createdAt": member.createdAt,
     }
 
+# PUT member  # 추가
+async def update_member(memberId: PydanticObjectId, data: dict) -> dict:
+    member = await member_collection.find_one(Member.id == memberId)
+    if not member:
+        return None
+    await member.set(data)
+    return {
+        "id": str(member.id),
+        "name": member.name,
+        "loginId": member.loginId,
+        "birth": member.birth,
+        "phone": member.phone,
+        "imageUrl": member.imageUrl,
+        "interests": member.interests,
+    }
+
+# DELETE member  # 추가
+async def delete_member(memberId: PydanticObjectId) -> bool:
+    member = await member_collection.find_one(Member.id == memberId)
+    if not member:
+        return False
+    await member.delete()
+    return True
 
 # GET folder
 async def retrieve_folder(folderId: PydanticObjectId) -> dict:
@@ -63,7 +86,6 @@ async def retrieve_folder(folderId: PydanticObjectId) -> dict:
             "createdAt": folder.createdAt,
         }
 
-
 # POST folder
 async def add_folder(new_folder: Folder) -> dict:
     folder = await new_folder.insert()
@@ -74,6 +96,39 @@ async def add_folder(new_folder: Folder) -> dict:
         "createdAt": folder.createdAt,
     }
 
+# GET folder 전체 목록  # 추가
+async def retrieve_all_folders() -> list:
+    folders = await Folder_collection.find_all().to_list()
+    return [
+        {
+            "id": str(f.id),
+            "name": f.name,
+            "higherFolderId": str(f.higherFolderId) if f.higherFolderId else None,
+            "createdAt": f.createdAt,
+        }
+        for f in folders
+    ]
+
+# PUT folder  # 추가
+async def update_folder(folderId: PydanticObjectId, data: dict) -> dict:
+    folder = await Folder_collection.find_one(Folder.id == folderId)
+    if not folder:
+        return None
+    await folder.set(data)
+    return {
+        "id": str(folder.id),
+        "name": folder.name,
+        "higherFolderId": str(folder.higherFolderId) if folder.higherFolderId else None,
+        "createdAt": folder.createdAt,
+    }
+ 
+# DELETE folder  # 추가
+async def delete_folder(folderId: PydanticObjectId) -> bool:
+    folder = await Folder_collection.find_one(Folder.id == folderId)
+    if not folder:
+        return False
+    await folder.delete()
+    return True
 
 # GET bookmark
 async def retrieve_bookmark(bookmarkId: PydanticObjectId) -> dict:
@@ -102,3 +157,28 @@ async def add_bookmark(new_bookmark: Bookmark) -> dict:
         "like": bookmark.like,
         "createdAt": bookmark.createdAt,
     }
+
+# PUT bookmark  # 추가
+async def update_bookmark(bookmarkId: PydanticObjectId, data: dict) -> dict:
+    bookmark = await Bookmark_collection.find_one(Bookmark.id == bookmarkId)
+    if not bookmark:
+        return None
+    await bookmark.set(data)
+    return {
+        "id": str(bookmark.id),
+        "url": bookmark.url,
+        "folderId": str(bookmark.folderId) if bookmark.folderId else None,
+        "imageUrl": bookmark.imageUrl,
+        "aiSummary": bookmark.aiSummary,
+        "like": bookmark.like,
+        "createdAt": bookmark.createdAt,
+    }
+ 
+# DELETE bookmark  # 추가
+async def delete_bookmark(bookmarkId: PydanticObjectId) -> bool:
+    bookmark = await Bookmark_collection.find_one(Bookmark.id == bookmarkId)
+    if not bookmark:
+        return False
+    await bookmark.delete()
+    return True
+ 

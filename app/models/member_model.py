@@ -3,7 +3,7 @@
 from beanie import Document
 from pydantic import BaseModel, Field
 from datetime import datetime, date
-from typing import Optional
+from typing import Optional, List
 
 class Member(Document):
     name: str
@@ -15,7 +15,8 @@ class Member(Document):
     aiSummary: bool = True
     aiSave: bool = True
     imageUrl: Optional[str] = None
-    createdAt: datetime = Field(default_factory = datetime.now)
+    interests: List[str] = []  # 추가: 관심사 목록 저장 (예: ["차", "맛집"])
+    createdAt: datetime = Field(default_factory=datetime.now)
 
     class Config:
         json_schema_extra = {
@@ -29,7 +30,7 @@ class Member(Document):
                 "aiSummary": True,
                 "aiSave": True,
                 "imageUrl": "url",
-                "createdAt": "%Y-%m-%d %H:%M:%S",
+                "createdAt": "%Y-%m-%d %H:%M:%S"
             }
         }
 

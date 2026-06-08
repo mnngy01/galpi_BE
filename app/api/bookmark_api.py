@@ -1,20 +1,47 @@
 from fastapi import APIRouter, BackgroundTasks
+from beanie import PydanticObjectId
 
-import database
+import database, random
+from models.folder_model import Folder
 from models.bookmark_model import Bookmark
 from schemas.bookmark_schema import CreateBookmark, UpdateBookmark
-from services.ai_service import crawl_and_summarize
-from beanie import PydanticObjectId
+from services.ai_service import crawl_summarize_classify
 
 router = APIRouter()
 
-# 백그라운드에서 요약 실행 후 DB 업데이트
-async def run_summary(bookmark_id: str, url: str):
-    summary = await crawl_and_summarize(url)
+# 백그라운드: AI 요약 + 관심사 자동 분류 → folderId 자동 배정
+async def run_summary_and_classify(bookmark_id: PydanticObjectId, url: str):
+    summary, interest = await crawl_summarize_classify(url)
+    bookmark = await Bookmark.find_one(Bookmark.id == bookmark_id)
+    if not bookmark:
+        return
+ 
+    update_data = {}
+
+    # 요약 저장
     if summary:
-        bookmark = await Bookmark.get(bookmark_id)
-        if bookmark:
-            await bookmark.set({Bookmark.aiSummary: summary})
+        update_data[Bookmark.aiSummary] = summary
+
+     # 관심사 태그 매칭 → 해당 폴더 찾아서 folderId 자동 배정
+    async def run_summary_and_classify(bookmark_id: PydanticObjectId, url: str):
+        summary, interest = await crawl_summarize_classify(url)
+        bookmark = await Bookmark.find_one(Bookmark.id == bookmark_id)
+        if not bookmark:
+            return
+
+    update_data = {}
+
+    if summary:
+        update_data[Bookmark.aiSummary] = summary
+
+    # 수정: summary와 별개로 interest 있으면 무조건 folderId 배정
+    if interest:
+        folder = await Folder.find_one(Folder.name == interest)
+        if folder:
+            update_data[Bookmark.folderId] = folder.id
+
+    if update_data:
+        await bookmark.set(update_data)
 
 # GET 북마크 검색
 @router.get("/bookmarks/search")
@@ -28,6 +55,50 @@ async def search_bookmarks(q: str):
             "response_type": "success",
             "description": f"'{q}' 검색 결과",
             "data": bookmarks,
+        }
+    except Exception as e:
+        return {
+            "status_code": 500,
+            "response_type": "error",
+            "description": f"Error occured: {e}",
+        }
+    
+# GET 추천 — 같은 폴더 내 북마크 랜덤 3개 반환
+@router.get("/bookmarks/recommend")
+async def recommend_bookmarks(folderId: PydanticObjectId):
+    try:
+        # 같은 폴더 내 북마크 전체 조회
+        bookmarks = await Bookmark.find(
+            Bookmark.folderId == folderId
+        ).to_list()
+ 
+        if not bookmarks:
+            return {
+                "status_code": 200,
+                "response_type": "success",
+                "description": "추천할 북마크가 없습니다",
+                "data": [],
+            }
+ 
+        # 랜덤으로 최대 3개 선택
+        recommended = random.sample(bookmarks, min(3, len(bookmarks)))
+ 
+        return {
+            "status_code": 200,
+            "response_type": "success",
+            "description": "추천 북마크",
+            "data": [
+                {
+                    "id": str(b.id),
+                    "url": b.url,
+                    "folderId": str(b.folderId) if b.folderId else None,
+                    "imageUrl": b.imageUrl,
+                    "aiSummary": b.aiSummary,
+                    "like": b.like,
+                    "createdAt": b.createdAt,
+                }
+                for b in recommended
+            ],
         }
     except Exception as e:
         return {
@@ -72,7 +143,7 @@ async def create_bookmark(new_bookmark: CreateBookmark, background_tasks: Backgr
         bookmark = Bookmark(**new_bookmark.model_dump())
         resp = await database.add_bookmark(bookmark)
         background_tasks.add_task(
-            run_summary,
+            run_summary_and_classify,
             PydanticObjectId(resp["id"]),
             resp["url"]
         )
@@ -89,3 +160,39 @@ async def create_bookmark(new_bookmark: CreateBookmark, background_tasks: Backgr
             "response_type": "error",
             "description": f"Error occured: {e}",
         }
+    
+# PUT 북마크 수정
+@router.put("/bookmarks/{bookmarkId}")
+async def update_bookmark(bookmarkId: PydanticObjectId, data: UpdateBookmark):
+    updated = await database.update_bookmark(
+        bookmarkId,
+        {k: v for k, v in data.model_dump().items() if v is not None}
+    )
+    if updated:
+        return {
+            "status_code": 200,
+            "response_type": "success",
+            "description": "Bookmark updated successfully",
+            "data": updated,
+        }
+    return {
+        "status_code": 404,
+        "response_type": "error",
+        "description": "잘못된 요청입니다",
+    }
+    
+# DELETE 북마크 삭제
+@router.delete("/bookmarks/{bookmarkId}")
+async def delete_bookmark(bookmarkId: PydanticObjectId):
+    deleted = await database.delete_bookmark(bookmarkId)
+    if deleted:
+        return {
+            "status_code": 200,
+            "response_type": "success",
+            "description": "Bookmark deleted successfully",
+        }
+    return {
+        "status_code": 404,
+        "response_type": "error",
+        "description": "잘못된 요청입니다",
+    }
