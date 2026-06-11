@@ -20,7 +20,7 @@ class CreateBookmark(BaseModel):
             "example": {
                 # "id": 자동생성
                 "url": "string",
-                "folderId": 5,
+                "folderId": "string",
                 # "imageUrl": "string",
                 # "aiSummary": "string",
                 # "like": 0,
@@ -39,7 +39,7 @@ class UpdateBookmark(BaseModel):
         json_schema_extra = {
             "example": {
                 "url": "string",
-                "folderId": 5,
+                "folderId": "string",
                 "imageUrl": "string",
                 "like": 0,
             }

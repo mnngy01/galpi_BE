@@ -143,6 +143,27 @@ async def retrieve_bookmark(bookmarkId: PydanticObjectId) -> dict:
             "like": bookmark.like,
             "createdAt": bookmark.createdAt,
         }
+    
+
+# GET folders/{folderId}/bookmarks 폴더별 북마크 조회
+async def retrieve_bookmarks_by_folder(folderId: PydanticObjectId):
+    bookmarks = await Bookmark.find(
+        Bookmark.folderId == folderId
+    ).to_list()
+
+    return [
+        {
+            "id": str(bookmark.id),
+            "url": bookmark.url,
+            "folderId": str(bookmark.folderId) if bookmark.folderId else None,
+            "imageUrl": bookmark.imageUrl,
+            "aiSummary": bookmark.aiSummary,
+            "like": bookmark.like,
+            "createdAt": bookmark.createdAt,
+        }
+        for bookmark in bookmarks
+    ]
+
 
 
 # POST bookmark
