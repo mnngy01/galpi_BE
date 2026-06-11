@@ -137,8 +137,8 @@ async def get_bookmarks():
     }
 
 # 북마크 생성
-@router.post("/bookmarks")
-async def create_bookmark(new_bookmark: CreateBookmark, background_tasks: BackgroundTasks):
+@router.post("/folders/{folderId}/bookmarks")
+async def create_bookmark(new_bookmark: CreateBookmark, folderId: PydanticObjectId, background_tasks: BackgroundTasks):
     try:
         bookmark = Bookmark(**new_bookmark.model_dump())
         resp = await database.add_bookmark(bookmark)

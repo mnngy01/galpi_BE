@@ -12,18 +12,18 @@ class CreateBookmark(BaseModel):
     folderId: Optional[PydanticObjectId] = None
     # imageUrl: Optional[str] = None  # 서버 자동생성
     # aiSummary: str # 서버 자동생성
-    like: int = 0
+    # like: int = 0
     # createdAt: datetime = Field(default_factory = datetime.now) # 서버 자동생성
 
     class Config:
         json_schema_extra = {
             "example": {
-                "id": 123,
+                # "id": 자동생성
                 "url": "string",
                 "folderId": 5,
                 # "imageUrl": "string",
                 # "aiSummary": "string",
-                "like": 0,
+                # "like": 0,
                 # "createdAt": "2024-02-22T07:47:49.803Z"
             }
         }
