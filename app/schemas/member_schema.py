@@ -1,9 +1,11 @@
 # schemas/member_schema.py
 
 from pydantic import BaseModel
-from typing import Optional, Any
+from typing import Optional, Any, List
 from datetime import datetime, date
 
+# 허용된 관심사 태그 목록 (고정값)
+VALID_INTERESTS = ["차(tea)", "아웃도어", "아이와 함께", "반려", "건축", "해외여행", "맛집", "인테리어"]
 
 # POST /api/members
 class CreateMember(BaseModel):
@@ -54,6 +56,16 @@ class UpdateMember(BaseModel):
             }
         }
 
+# POST /members/{memberId}/interests — 관심사 선택 (회원가입 후 첫 로그인 화면)
+class SetInterests(BaseModel):
+    interests: List[str]  # 선택한 관심사 목록 (예: ["차", "맛집"])
+ 
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "interests": ["차", "맛집", "아웃도어"]
+            }
+        }
 
 # GET /api/member/{memberId}
 class Response(BaseModel):

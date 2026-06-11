@@ -2,12 +2,13 @@
 
 from pydantic import BaseModel
 from typing import Optional, Any
+from beanie import PydanticObjectId
 
 
 # POST /api/folders
 class CreateFolder(BaseModel):
     name: str
-    higherFolderId: int
+    higherFolderId: Optional[PydanticObjectId]
 
     class Config:
         json_schema_extra = {
@@ -20,7 +21,7 @@ class CreateFolder(BaseModel):
 
 # PUT /api/folders/{folderId}
 class UpdateFolder(BaseModel):
-    id: int
+    # id: int # URL 경로에서 직접 받음
     name: str
     higherFolderId: int = 1
 
