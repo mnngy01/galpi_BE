@@ -2,6 +2,7 @@
 
 from beanie import Document, PydanticObjectId
 from pydantic import BaseModel, Field
+from pymongo import IndexModel, TEXT
 from datetime import datetime
 from typing import Optional
 
@@ -28,5 +29,8 @@ class Bookmark(Document):
     class Settings:
         name = "bookmark"
         indexes = [
-            [("url", "text"), ("aiSummary", "text")]
+            IndexModel(
+                [("url", TEXT), ("aiSummary", TEXT)],
+                default_language="none"  # 한국어 포함 모든 언어 검색
+            )
         ]
