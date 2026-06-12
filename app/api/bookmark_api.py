@@ -107,6 +107,7 @@ async def recommend_bookmarks(folderId: PydanticObjectId):
             "description": f"Error occured: {e}",
         }
 
+# GET 북마크 상세 조회
 @router.get("/bookmarks/{bookmarkId}")
 async def get_bookmark(bookmarkId: PydanticObjectId):
     bookmark = await database.retrieve_bookmark(bookmarkId)
@@ -124,6 +125,7 @@ async def get_bookmark(bookmarkId: PydanticObjectId):
         "description": "잘못된 요청입니다",
     }
 
+# GET 북마크 전체 조회
 @router.get("/bookmarks")
 async def get_bookmarks():
 
@@ -136,9 +138,29 @@ async def get_bookmarks():
         "data": bookmarks,
     }
 
-# 북마크 생성
-@router.post("/bookmarks")
-async def create_bookmark(new_bookmark: CreateBookmark, background_tasks: BackgroundTasks):
+# GET 폴더별 북마크 조회
+@router.get("/folders/{folderId}/bookmarks")
+async def get_bookmark_by_folder(folderId: PydanticObjectId):
+    try:
+        bookmarks = await database.retrieve_bookmarks_by_folder(folderId)
+
+        return {
+            "status_code": 200,
+            "response_type": "success",
+            "description": "Bookmarks retrieved successfully",
+            "data": bookmarks,
+        }
+    
+    except Exception as e:
+        return {
+            "status_code": 500,
+            "response_type": "error",
+            "description": f"Error occured: {e}",
+        }
+
+# POST 북마크 생성
+@router.post("/folders/{folderId}/bookmarks")
+async def create_bookmark(new_bookmark: CreateBookmark, folderId: PydanticObjectId, background_tasks: BackgroundTasks):
     try:
         bookmark = Bookmark(**new_bookmark.model_dump())
         resp = await database.add_bookmark(bookmark)

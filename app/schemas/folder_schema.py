@@ -14,7 +14,7 @@ class CreateFolder(BaseModel):
         json_schema_extra = {
             "example": {
                 "name": "여행 장소",
-                "higherFolderId": 1,
+                "higherFolderId": "string",
             }
         }
 
@@ -23,13 +23,13 @@ class CreateFolder(BaseModel):
 class UpdateFolder(BaseModel):
     # id: int # URL 경로에서 직접 받음
     name: str
-    higherFolderId: int = 1
+    higherFolderId: Optional[PydanticObjectId]
 
     class Config:
         json_schema_extra = {
             "example": {
-                "id": 2,
+                # "id": 2,
                 "name": "강릉 여행 북마크",
-                "higherFolderId": 1,
+                "higherFolderId": "string",
             }
         }
