@@ -36,10 +36,4 @@ class Member(Document):
         }
 
     class Settings:
-        name = "bookmark"
-        indexes = [
-            IndexModel(
-                [("url", TEXT), ("aiSummary", TEXT)],
-                default_language="none"  # 한국어 포함 모든 언어 검색
-            )
-        ]
+        name = "member"

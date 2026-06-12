@@ -13,7 +13,7 @@ from schemas.member_schema import CreateMember, UpdateMember, SetInterests, Resp
 
 router = APIRouter()
 
-
+# 멤버 상세 조회
 @router.get("/members/{memberId}", response_description="Member Retrieved", response_model=Response)
 async def get_member(memberId: PydanticObjectId):
     member = await database.retrieve_member(memberId)
@@ -31,6 +31,7 @@ async def get_member(memberId: PydanticObjectId):
     }
 
 
+# 멤버 등록
 @router.post("/members", response_description="Member data added into database", response_model=Response)
 async def create_member(new_member: CreateMember):
     try:
@@ -48,6 +49,7 @@ async def create_member(new_member: CreateMember):
             "response_type": "error",
             "description": f"Some error occured {e}",
         }
+
 
 # PUT 멤버 수정  # 추가
 @router.put("/members/{memberId}", response_model=Response)
