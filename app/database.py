@@ -19,7 +19,7 @@ Bookmark_collection = Bookmark
 Folder_collection = Folder
 
 
-# GET member
+# GET member 조회
 async def retrieve_member(memberId: PydanticObjectId) -> dict:
     member = await member_collection.find_one(Member.id == memberId)  # 수정: get → find_one
     if member:
@@ -38,7 +38,7 @@ async def retrieve_member(memberId: PydanticObjectId) -> dict:
         }
 
 
-# POST member
+# POST member 등록
 async def add_member(new_member: Member) -> Member:
     member = await new_member.insert()
     return {
@@ -51,7 +51,7 @@ async def add_member(new_member: Member) -> Member:
 	    "createdAt": member.createdAt,
     }
 
-# PUT member  # 추가
+# PUT member 수정
 async def update_member(memberId: PydanticObjectId, data: dict) -> dict:
     member = await member_collection.find_one(Member.id == memberId)
     if not member:
@@ -67,7 +67,7 @@ async def update_member(memberId: PydanticObjectId, data: dict) -> dict:
         "interests": member.interests,
     }
 
-# DELETE member  # 추가
+# DELETE member 삭제
 async def delete_member(memberId: PydanticObjectId) -> bool:
     member = await member_collection.find_one(Member.id == memberId)
     if not member:
@@ -75,28 +75,28 @@ async def delete_member(memberId: PydanticObjectId) -> bool:
     await member.delete()
     return True
 
-# GET folder
+# GET folder 상세 조회
 async def retrieve_folder(folderId: PydanticObjectId) -> dict:
     folder = await Folder_collection.find_one(Folder.id == folderId)  # 수정: get → find_one
     if folder:
         return {
             "id": str(folder.id),
             "name": folder.name,
-            "higherFolderId": folder.higherFolderId,
+            "higherFolderId": str(folder.higherFolderId),
             "createdAt": folder.createdAt,
         }
 
-# POST folder
+# POST folder 등록
 async def add_folder(new_folder: Folder) -> dict:
     folder = await new_folder.insert()
     return {
         "id": str(folder.id),
         "name": folder.name,
-        "higherFolderId": folder.higherFolderId,
+        "higherFolderId": str(folder.higherFolderId),
         "createdAt": folder.createdAt,
     }
 
-# GET folder 전체 목록  # 추가
+# GET folder 전체 목록 
 async def retrieve_all_folders() -> list:
     folders = await Folder_collection.find_all().to_list()
     return [
@@ -109,7 +109,7 @@ async def retrieve_all_folders() -> list:
         for f in folders
     ]
 
-# PUT folder  # 추가
+# PUT folder 수정
 async def update_folder(folderId: PydanticObjectId, data: dict) -> dict:
     folder = await Folder_collection.find_one(Folder.id == folderId)
     if not folder:
@@ -122,7 +122,7 @@ async def update_folder(folderId: PydanticObjectId, data: dict) -> dict:
         "createdAt": folder.createdAt,
     }
  
-# DELETE folder  # 추가
+# DELETE folder 삭제
 async def delete_folder(folderId: PydanticObjectId) -> bool:
     folder = await Folder_collection.find_one(Folder.id == folderId)
     if not folder:
@@ -130,7 +130,7 @@ async def delete_folder(folderId: PydanticObjectId) -> bool:
     await folder.delete()
     return True
 
-# GET bookmark
+# GET bookmark 상세 조회
 async def retrieve_bookmark(bookmarkId: PydanticObjectId) -> dict:
     bookmark = await Bookmark_collection.find_one(Bookmark.id == bookmarkId)  # 수정: get → find_one
     if bookmark:
@@ -143,9 +143,30 @@ async def retrieve_bookmark(bookmarkId: PydanticObjectId) -> dict:
             "like": bookmark.like,
             "createdAt": bookmark.createdAt,
         }
+    
+
+# GET folders/{folderId}/bookmarks 폴더별 북마크 조회
+async def retrieve_bookmarks_by_folder(folderId: PydanticObjectId):
+    bookmarks = await Bookmark.find(
+        Bookmark.folderId == folderId
+    ).to_list()
+
+    return [
+        {
+            "id": str(bookmark.id),
+            "url": bookmark.url,
+            "folderId": str(bookmark.folderId) if bookmark.folderId else None,
+            "imageUrl": bookmark.imageUrl,
+            "aiSummary": bookmark.aiSummary,
+            "like": bookmark.like,
+            "createdAt": bookmark.createdAt,
+        }
+        for bookmark in bookmarks
+    ]
 
 
-# POST bookmark
+
+# POST bookmark 등록
 async def add_bookmark(new_bookmark: Bookmark) -> dict:
     bookmark = await new_bookmark.insert()
     return {
@@ -158,7 +179,7 @@ async def add_bookmark(new_bookmark: Bookmark) -> dict:
         "createdAt": bookmark.createdAt,
     }
 
-# PUT bookmark  # 추가
+# PUT bookmark 수정
 async def update_bookmark(bookmarkId: PydanticObjectId, data: dict) -> dict:
     bookmark = await Bookmark_collection.find_one(Bookmark.id == bookmarkId)
     if not bookmark:
@@ -174,7 +195,7 @@ async def update_bookmark(bookmarkId: PydanticObjectId, data: dict) -> dict:
         "createdAt": bookmark.createdAt,
     }
  
-# DELETE bookmark  # 추가
+# DELETE bookmark 삭제
 async def delete_bookmark(bookmarkId: PydanticObjectId) -> bool:
     bookmark = await Bookmark_collection.find_one(Bookmark.id == bookmarkId)
     if not bookmark:
