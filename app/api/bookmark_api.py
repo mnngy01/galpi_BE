@@ -107,6 +107,53 @@ async def recommend_bookmarks(folderId: PydanticObjectId):
             "description": f"Error occured: {e}",
         }
 
+@router.get("/bookmarks/remind")
+async def remind_bookmarks():
+    try:
+        from datetime import datetime, timedelta
+        # 1일 이내 기준 날짜
+        cutoff = datetime.now() - timedelta(days=1)
+
+        # 1일 미만 된 북마크 전체 조회
+        bookmarks = await Bookmark.find(
+            Bookmark.createdAt >= cutoff
+        ).to_list()
+
+        if not bookmarks:
+            return {
+                "status_code": 200,
+                "response_type": "success",
+                "description": "리마인드할 북마크가 없습니다",
+                "data": [],
+            }
+
+        # 랜덤으로 최대 3개 선택 (접속할 때마다 다르게)
+        recommended = random.sample(bookmarks, min(3, len(bookmarks)))
+
+        return {
+            "status_code": 200,
+            "response_type": "success",
+            "description": "오래된 북마크 리마인드",
+            "data": [
+                {
+                    "id": str(b.id),
+                    "url": b.url,
+                    "folderId": str(b.folderId) if b.folderId else None,
+                    "imageUrl": b.imageUrl,
+                    "aiSummary": b.aiSummary,
+                    "like": b.like,
+                    "createdAt": b.createdAt,
+                }
+                for b in recommended
+            ],
+        }
+    except Exception as e:
+        return {
+            "status_code": 500,
+            "response_type": "error",
+            "description": f"Error occured: {e}",
+        }
+
 # GET 북마크 상세 조회
 @router.get("/bookmarks/{bookmarkId}")
 async def get_bookmark(bookmarkId: PydanticObjectId):
