@@ -4,6 +4,7 @@ from beanie import Document
 from pydantic import BaseModel, Field
 from datetime import datetime, date
 from typing import Optional, List
+from pymongo import IndexModel, TEXT
 
 class Member(Document):
     name: str
@@ -35,4 +36,10 @@ class Member(Document):
         }
 
     class Settings:
-        name = "member"
+        name = "bookmark"
+        indexes = [
+            IndexModel(
+                [("url", TEXT), ("aiSummary", TEXT)],
+                default_language="none"  # 한국어 포함 모든 언어 검색
+            )
+        ]
