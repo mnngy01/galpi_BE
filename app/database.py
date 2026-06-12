@@ -82,7 +82,7 @@ async def retrieve_folder(folderId: PydanticObjectId) -> dict:
         return {
             "id": str(folder.id),
             "name": folder.name,
-            "higherFolderId": folder.higherFolderId,
+            "higherFolderId": str(folder.higherFolderId),
             "createdAt": folder.createdAt,
         }
 
@@ -92,7 +92,7 @@ async def add_folder(new_folder: Folder) -> dict:
     return {
         "id": str(folder.id),
         "name": folder.name,
-        "higherFolderId": folder.higherFolderId,
+        "higherFolderId": str(folder.higherFolderId),
         "createdAt": folder.createdAt,
     }
 

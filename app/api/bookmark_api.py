@@ -158,7 +158,7 @@ async def get_bookmark_by_folder(folderId: PydanticObjectId):
             "description": f"Error occured: {e}",
         }
 
-# 북마크 생성
+# POST 북마크 생성
 @router.post("/folders/{folderId}/bookmarks")
 async def create_bookmark(new_bookmark: CreateBookmark, folderId: PydanticObjectId, background_tasks: BackgroundTasks):
     try:
