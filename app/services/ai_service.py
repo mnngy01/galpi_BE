@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from google import genai
 
 # API 키 설정 (나중에 .env로 분리 권장)
-GEMINI_API_KEY = "#############"
+GEMINI_API_KEY = "API키는 꼭 빼도록 합시다 깃허브가 차단하기전에..."
 client = genai.Client(api_key=GEMINI_API_KEY)
 
 # 관심사 태그 목록 (member_schema.py의 VALID_INTERESTS와 동일)
