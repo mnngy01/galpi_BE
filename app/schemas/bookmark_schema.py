@@ -31,6 +31,7 @@ class CreateBookmark(BaseModel):
 
 # PUT /api/bookmarks/{bookmarkId}
 class UpdateBookmark(BaseModel):
+    url: str
     folderId: Optional[PydanticObjectId] = None
     imageUrl: str
     like: int = 0
