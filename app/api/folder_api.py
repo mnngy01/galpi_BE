@@ -8,7 +8,6 @@ from schemas.folder_schema import CreateFolder, UpdateFolder
 
 router = APIRouter()
 
-# GET 폴더 전체 목록  # 추가 — /{folderId} 보다 위에!!
 @router.get("/folders")
 async def get_folders():
     folders = await database.retrieve_all_folders()
@@ -55,7 +54,6 @@ async def create_folder(new_folder: CreateFolder):
             "description": f"Error occured: {e}",
         }
     
-# PUT 폴더 수정  # 추가
 @router.put("/folders/{folderId}")
 async def update_folder(folderId: PydanticObjectId, data: UpdateFolder):
     updated = await database.update_folder(
@@ -76,7 +74,6 @@ async def update_folder(folderId: PydanticObjectId, data: UpdateFolder):
     }
  
  
-# DELETE 폴더 삭제  # 추가
 @router.delete("/folders/{folderId}")
 async def delete_folder(folderId: PydanticObjectId):
     deleted = await database.delete_folder(folderId)

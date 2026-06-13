@@ -5,7 +5,7 @@ from typing import Optional, Any
 from beanie import PydanticObjectId
 
 
-# POST /api/folders
+# POST /folders
 class CreateFolder(BaseModel):
     name: str
     higherFolderId: Optional[PydanticObjectId]
@@ -19,16 +19,14 @@ class CreateFolder(BaseModel):
         }
 
 
-# PUT /api/folders/{folderId}
+# PUT /folders/{folderId}
 class UpdateFolder(BaseModel):
-    # id: int # URL 경로에서 직접 받음
     name: str
     higherFolderId: Optional[PydanticObjectId]
 
     class Config:
         json_schema_extra = {
             "example": {
-                # "id": 2,
                 "name": "강릉 여행 북마크",
                 "higherFolderId": "string",
             }

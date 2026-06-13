@@ -32,11 +32,10 @@ async def run_summary_and_classify(bookmark_id: PydanticObjectId, url: str):
  
     update_data = {}
 
-    # 요약 저장
     if summary:
         update_data[Bookmark.aiSummary] = summary
 
-     # 관심사 태그 매칭 → 해당 폴더 찾아서 folderId 자동 배정
+     # 관심사 태그 매칭 → folderId 자동 배정
     async def run_summary_and_classify(bookmark_id: PydanticObjectId, url: str):
         summary, interest, image_url = await crawl_summarize_classify(url)
         bookmark = await Bookmark.find_one(Bookmark.id == bookmark_id)
@@ -48,26 +47,24 @@ async def run_summary_and_classify(bookmark_id: PydanticObjectId, url: str):
         if summary:
             update_data[Bookmark.aiSummary] = summary
 
-        # 수정: summary와 별개로 interest 있으면 무조건 folderId 배정, 매칭 폴더 없어도 기타로 배정
+        # 요약이랑 별개로 interest 있으면 무조건 folderId 배정, 매칭 폴더 없으면 기타로 배정
         if interest:
             folder = await Folder.find_one(Folder.name == interest)
             if folder:
                 update_data[Bookmark.folderId] = folder.id
             else:
-                # 매칭 폴더 없으면 기타로
                 etc_folder = await Folder.find_one(Folder.name == "기타")
                 if etc_folder:
                     update_data[Bookmark.folderId] = etc_folder.id
-        else:     # 분류 자체 실패해도 기타로
+        else:     # 분류 자체 실패해도 기타로 보냄
             etc_folder = await Folder.find_one(Folder.name == "기타")
             if etc_folder:
                 update_data[Bookmark.folderId] = etc_folder.id
 
-# GET 북마크 검색
 @router.get("/bookmarks/search")
 async def search_bookmarks(q: str):
     try:
-        # $regex로 부분 문자열 검색 (몽고디비 단어 단위 검색 해결, 대소문자 구분 없음)
+        # $regex 부분 문자열 검색 (몽고디비는 단어 단위로만 검색함)
         bookmarks = await Bookmark.find(
             {"$or": [
                 {"aiSummary": {"$regex": q, "$options": "i"}},
@@ -99,9 +96,8 @@ async def search_bookmarks(q: str):
             "description": f"Error occured: {e}",
         }
     
-# GET 추천 — 7일 이내 저장된 것 제외하고 랜덤 3개 반환
 @router.get("/bookmarks/recommend")
-async def recommend_bookmarks():
+async def recommend_bookmarks(): #  7일 이내 저장된 북마크 제외하고 랜덤 3개 반환
     try:
         from datetime import datetime, timedelta
         cutoff = datetime.now() - timedelta(days=1) # 지금은 테스트를 위해 1일
@@ -149,10 +145,10 @@ async def recommend_bookmarks():
 async def remind_bookmarks():
     try:
         from datetime import datetime, timedelta
-        # 1일 이내 기준 날짜
-        cutoff = datetime.now() - timedelta(days=1)
+        # 7일 이내 기준 날짜, recommend와 겹치지 않게 설정
+        cutoff = datetime.now() - timedelta(days=1) # 지금은 테스트를 위해 1일
 
-        # 1일 미만 된 북마크 전체 조회
+        # 7일 미만 된 북마크 전체 조회
         bookmarks = await Bookmark.find(
             Bookmark.createdAt >= cutoff
         ).to_list()
@@ -165,8 +161,8 @@ async def remind_bookmarks():
                 "data": [],
             }
 
-        # 랜덤으로 최대 3개 선택 (접속할 때마다 다르게)
-        recommended = random.sample(bookmarks, min(3, len(bookmarks)))
+        # 랜덤으로 최대 5개 선택 (접속할 때마다 다르게)
+        recommended = random.sample(bookmarks, min(5, len(bookmarks)))
 
         return {
             "status_code": 200,
@@ -192,7 +188,6 @@ async def remind_bookmarks():
             "description": f"Error occured: {e}",
         }
 
-# GET 북마크 상세 조회
 @router.get("/bookmarks/{bookmarkId}")
 async def get_bookmark(bookmarkId: PydanticObjectId):
     bookmark = await database.retrieve_bookmark(bookmarkId)
@@ -243,7 +238,6 @@ async def get_bookmark_by_folder(folderId: PydanticObjectId):
             "description": f"Error occured: {e}",
         }
 
-# POST 북마크 생성
 @router.post("/bookmarks")
 async def create_bookmark(new_bookmark: CreateBookmark, background_tasks: BackgroundTasks):
     try:
@@ -268,7 +262,6 @@ async def create_bookmark(new_bookmark: CreateBookmark, background_tasks: Backgr
             "description": f"Error occured: {e}",
         }
     
-# PUT 북마크 수정
 @router.put("/bookmarks/{bookmarkId}")
 async def update_bookmark(bookmarkId: PydanticObjectId, data: UpdateBookmark):
     updated = await database.update_bookmark(
@@ -288,7 +281,6 @@ async def update_bookmark(bookmarkId: PydanticObjectId, data: UpdateBookmark):
         "description": "잘못된 요청입니다",
     }
     
-# DELETE 북마크 삭제
 @router.delete("/bookmarks/{bookmarkId}")
 async def delete_bookmark(bookmarkId: PydanticObjectId):
     deleted = await database.delete_bookmark(bookmarkId)

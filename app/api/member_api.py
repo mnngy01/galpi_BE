@@ -1,8 +1,5 @@
-# router/member_api
-
 from fastapi import APIRouter, Body, HTTPException
 from bson import ObjectId
-# from configrations import collection
 from beanie import PydanticObjectId
 
 import database
@@ -13,7 +10,6 @@ from schemas.member_schema import CreateMember, UpdateMember, SetInterests, Resp
 
 router = APIRouter()
 
-# 멤버 상세 조회
 @router.get("/members/{memberId}", response_description="Member Retrieved", response_model=Response)
 async def get_member(memberId: PydanticObjectId):
     member = await database.retrieve_member(memberId)
@@ -31,7 +27,6 @@ async def get_member(memberId: PydanticObjectId):
     }
 
 
-# 멤버 등록
 @router.post("/members", response_description="Member data added into database", response_model=Response)
 async def create_member(new_member: CreateMember):
     try:
@@ -51,7 +46,6 @@ async def create_member(new_member: CreateMember):
         }
 
 
-# PUT 멤버 수정  # 추가
 @router.put("/members/{memberId}", response_model=Response)
 async def update_member(memberId: PydanticObjectId, data: UpdateMember):
     updated = await database.update_member(
@@ -71,8 +65,6 @@ async def update_member(memberId: PydanticObjectId, data: UpdateMember):
         "description": "잘못된 요청입니다",
     }
  
- 
-# DELETE 멤버 삭제  # 추가
 @router.delete("/members/{memberId}", response_model=Response)
 async def delete_member(memberId: PydanticObjectId):
     deleted = await database.delete_member(memberId)
@@ -93,7 +85,7 @@ async def delete_member(memberId: PydanticObjectId):
 @router.post("/members/{memberId}/interests", response_model=Response)
 async def set_interests(memberId: PydanticObjectId, data: SetInterests):
     try:
-        # 1. 유효하지 않은 관심사 필터링
+        # 유효하지 않은 관심사 필터링
         valid = [i for i in data.interests if i in VALID_INTERESTS]
         if not valid:
             return {
@@ -102,7 +94,7 @@ async def set_interests(memberId: PydanticObjectId, data: SetInterests):
                 "description": "관심사가 없습니다",
             }
  
-        # 2. 멤버 찾기
+        # 멤버 찾기
         member = await Member.find_one(Member.id == memberId)
         if not member:
             return {
@@ -111,11 +103,11 @@ async def set_interests(memberId: PydanticObjectId, data: SetInterests):
                 "description": "존재하지 않는 회원입니다",
             }
  
-        # 3. 관심사 저장
+        # 관심사 저장
         await member.set({Member.interests: valid})
  
-        # 4. 선택한 관심사 이름으로 자동 생성
-        # 이미 같은 이름의 폴더가 있으면 생성 안 함 (중복 방지)
+        # 선택한 관심사 이름으로 자동 생성
+        # 이미 같은 이름의 폴더가 있으면 생성 안 함
         created_folders = []
         for interest in valid:
             existing = await Folder.find_one(Folder.name == interest)
