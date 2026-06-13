@@ -7,7 +7,7 @@ from datetime import datetime, date
 # 허용된 관심사 태그 목록 (고정값)
 VALID_INTERESTS = ["차(tea)", "아웃도어", "아이와 함께", "반려", "건축", "해외여행", "맛집", "인테리어"]
 
-# POST /api/members
+# POST /members
 class CreateMember(BaseModel):
     name: str
     loginId: str
@@ -27,7 +27,7 @@ class CreateMember(BaseModel):
         }
 
 
-# PUT /api/members/{memberId}
+# PUT /members/{memberId}
 class UpdateMember(BaseModel):
     name: str
     loginId: str
@@ -58,7 +58,7 @@ class UpdateMember(BaseModel):
 
 # POST /members/{memberId}/interests — 관심사 선택 (회원가입 후 첫 로그인 화면)
 class SetInterests(BaseModel):
-    interests: List[str]  # 선택한 관심사 목록 (예: ["차", "맛집"])
+    interests: List[str]
  
     class Config:
         json_schema_extra = {
@@ -67,7 +67,7 @@ class SetInterests(BaseModel):
             }
         }
 
-# GET /api/member/{memberId}
+# GET /member/{memberId}
 class Response(BaseModel):
     status_code: int
     response_type: str

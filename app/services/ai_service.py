@@ -1,15 +1,12 @@
-# app/services/ai_service.py
 import httpx
 from bs4 import BeautifulSoup
 from google import genai
 import os
 
-
-# API 키 설정 (나중에 .env로 분리 권장)
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 client = genai.Client(api_key=GEMINI_API_KEY)
 
-# 관심사 태그 목록 (member_schema.py의 VALID_INTERESTS와 동일)
+# 관심사 태그 목록 (member_schema.py VALID_INTERESTS와 동일, 자동 생성을 위해 기타 추가)
 INTERESTS = ["차(tea)", "아웃도어", "아이와 함께", "반려", "건축", "해외여행", "맛집", "인테리어", "기타"]
 
 async def crawl_url(url: str) -> str:
@@ -19,7 +16,6 @@ async def crawl_url(url: str) -> str:
             response = await http_client.get(url)
         soup = BeautifulSoup(response.text, "html.parser")
 
-        # 불필요한 태그 제거
         for tag in soup(["script", "style", "nav", "footer"]):
             tag.decompose()
 
@@ -29,9 +25,6 @@ async def crawl_url(url: str) -> str:
     except Exception as e:
         print("크롤링 오류:", e)
     return ""
-    # except Exception as e:
-    #     return ""  # 크롤링 실패해도 일단 정상 응답
-
 
 async def extract_og_image(url: str) -> str:
     """URL에서 og:image 태그 추출 → 썸네일 URL 반환"""
@@ -63,8 +56,6 @@ async def summarize(text: str) -> str:
     except Exception as e:
         print("요약 오류:", e)
     return ""
-    # except Exception as e:
-    #     return ""  # 요약 실패해도 서버 정상 응답
 
 async def classify_interest(text: str) -> str:
     """
@@ -88,11 +79,10 @@ async def classify_interest(text: str) -> str:
         )
         result = response.text.strip()
 
-        # 응답이 목록 안에 있는 값인지 확인
         if result in INTERESTS:
             return result
         
-        # 혹시 문장으로 답했을 경우 포함 여부 확인
+        # 혹시 문장으로 답했을 경우에도 포함되는지 확인
         for interest in INTERESTS:
             if interest in result:
                 return interest
@@ -114,5 +104,5 @@ async def crawl_summarize_classify(url: str) -> tuple[str, str, str]:
     text = await crawl_url(url)
     summary = await summarize(text)
     interest = await classify_interest(text)
-    image_url = await extract_og_image(url)  # 추가
+    image_url = await extract_og_image(url)
     return summary, interest, image_url
