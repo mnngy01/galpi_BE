@@ -8,7 +8,7 @@ from typing import Optional
 
 class Bookmark(Document):
     url: str
-    folderId: Optional[PydanticObjectId]
+    folderId: Optional[PydanticObjectId] = None
     imageUrl: Optional[str] = None
     aiSummary: Optional[str] = None
     like: bool = False

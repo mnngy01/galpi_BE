@@ -123,6 +123,13 @@ async def set_interests(memberId: PydanticObjectId, data: SetInterests):
                 folder = Folder(name=interest, higherFolderId=None)
                 await folder.insert()
                 created_folders.append(interest)
+
+        # 관심사 폴더 생성 후 기타 폴더도 자동 생성
+        existing_etc = await Folder.find_one(Folder.name == "기타")
+        if not existing_etc:
+            folder = Folder(name="기타", higherFolderId=None)
+            await folder.insert()
+            created_folders.append("기타")
  
         return {
             "status_code": 200,

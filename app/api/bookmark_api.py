@@ -38,24 +38,30 @@ async def run_summary_and_classify(bookmark_id: PydanticObjectId, url: str):
 
      # 관심사 태그 매칭 → 해당 폴더 찾아서 folderId 자동 배정
     async def run_summary_and_classify(bookmark_id: PydanticObjectId, url: str):
-        summary, interest = await crawl_summarize_classify(url)
+        summary, interest, image_url = await crawl_summarize_classify(url)
         bookmark = await Bookmark.find_one(Bookmark.id == bookmark_id)
         if not bookmark:
             return
 
-    update_data = {}
+        update_data = {}
 
-    if summary:
-        update_data[Bookmark.aiSummary] = summary
+        if summary:
+            update_data[Bookmark.aiSummary] = summary
 
-    # 수정: summary와 별개로 interest 있으면 무조건 folderId 배정
-    if interest:
-        folder = await Folder.find_one(Folder.name == interest)
-        if folder:
-            update_data[Bookmark.folderId] = folder.id
-
-    if update_data:
-        await bookmark.set(update_data)
+        # 수정: summary와 별개로 interest 있으면 무조건 folderId 배정, 매칭 폴더 없어도 기타로 배정
+        if interest:
+            folder = await Folder.find_one(Folder.name == interest)
+            if folder:
+                update_data[Bookmark.folderId] = folder.id
+            else:
+                # 매칭 폴더 없으면 기타로
+                etc_folder = await Folder.find_one(Folder.name == "기타")
+                if etc_folder:
+                    update_data[Bookmark.folderId] = etc_folder.id
+        else:     # 분류 자체 실패해도 기타로
+            etc_folder = await Folder.find_one(Folder.name == "기타")
+            if etc_folder:
+                update_data[Bookmark.folderId] = etc_folder.id
 
 # GET 북마크 검색
 @router.get("/bookmarks/search")
@@ -93,15 +99,18 @@ async def search_bookmarks(q: str):
             "description": f"Error occured: {e}",
         }
     
-# GET 추천 — 같은 폴더 내 북마크 랜덤 3개 반환
+# GET 추천 — 7일 이내 저장된 것 제외하고 랜덤 3개 반환
 @router.get("/bookmarks/recommend")
-async def recommend_bookmarks(folderId: PydanticObjectId):
+async def recommend_bookmarks():
     try:
-        # 같은 폴더 내 북마크 전체 조회
+        from datetime import datetime, timedelta
+        cutoff = datetime.now() - timedelta(days=1) # 지금은 테스트를 위해 1일
+
+        # 7일 이상 된 북마크 조회
         bookmarks = await Bookmark.find(
-            Bookmark.folderId == folderId
+            Bookmark.createdAt <= cutoff
         ).to_list()
- 
+
         if not bookmarks:
             return {
                 "status_code": 200,
@@ -109,14 +118,13 @@ async def recommend_bookmarks(folderId: PydanticObjectId):
                 "description": "추천할 북마크가 없습니다",
                 "data": [],
             }
- 
-        # 랜덤으로 최대 3개 선택
+
         recommended = random.sample(bookmarks, min(3, len(bookmarks)))
- 
+
         return {
             "status_code": 200,
             "response_type": "success",
-            "description": "추천 북마크",
+            "description": "랜덤 추천 북마크",
             "data": [
                 {
                     "id": str(b.id),
@@ -236,8 +244,8 @@ async def get_bookmark_by_folder(folderId: PydanticObjectId):
         }
 
 # POST 북마크 생성
-@router.post("/folders/{folderId}/bookmarks")
-async def create_bookmark(new_bookmark: CreateBookmark, folderId: PydanticObjectId, background_tasks: BackgroundTasks):
+@router.post("/bookmarks")
+async def create_bookmark(new_bookmark: CreateBookmark, background_tasks: BackgroundTasks):
     try:
         bookmark = Bookmark(**new_bookmark.model_dump())
         resp = await database.add_bookmark(bookmark)

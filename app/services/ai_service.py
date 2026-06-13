@@ -6,11 +6,10 @@ import os
 
 # API 키 설정 (나중에 .env로 분리 권장)
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-
 client = genai.Client(api_key=GEMINI_API_KEY)
 
 # 관심사 태그 목록 (member_schema.py의 VALID_INTERESTS와 동일)
-INTERESTS = ["차(tea)", "아웃도어", "아이와 함께", "반려", "건축", "해외여행", "맛집", "인테리어"]
+INTERESTS = ["차(tea)", "아웃도어", "아이와 함께", "반려", "건축", "해외여행", "맛집", "인테리어", "기타"]
 
 async def crawl_url(url: str) -> str:
     """URL 접속해서 본문 텍스트 추출"""
@@ -54,7 +53,7 @@ async def summarize(text: str) -> str:
     if not text:
         return ""
     try:
-        prompt = f"다음 내용을 한국어로 2~3줄로 요약해줘:\n\n{text}"
+        prompt = f"다음 내용을 한국어로 핵심 요약해줘, 명사형 어미로 1줄 내외의 핵심 헤드라인을 넣고 개행한 후에 키워드: 라고 적고 앞줄엔 들어가지 않았지만 북마크 내용에 포함되거나 관련되는 핵심 키워드를 나열해줘 (예시: 파리 주요 관광지를 3일 동안 여행하는 일정 \n키워드: 프랑스, 여행, 루트):\n\n{text}"
         response = client.models.generate_content(
             model="gemini-2.5-flash",
             contents=prompt
@@ -69,7 +68,7 @@ async def summarize(text: str) -> str:
 async def classify_interest(text: str) -> str:
     """
     크롤링한 본문을 보고 관심사 태그 중 가장 적합한 것 하나 반환.
-    매칭되는 게 없으면 빈 문자열 반환.
+    매칭되는 게 없으면 기타 폴더에 저장.
     """
     if not text:
         return ""
@@ -77,7 +76,8 @@ async def classify_interest(text: str) -> str:
         tags = ", ".join(INTERESTS)
         prompt = (
             f"다음 텍스트를 읽고 아래 카테고리 중 가장 잘 맞는 것 하나만 골라줘. "
-            f"반드시 아래 목록 중 하나만 답해. 다른 말은 하지 마.\n\n"
+            f"반드시 아래 목록 중 하나만 답해. 다른 말은 하지 마. "
+            f"적합한 카테고리가 없으면 반드시 기타 카테고리를 선택해.\n\n"
             f"카테고리: {tags}\n\n"
             f"텍스트: {text[:1000]}"
         )

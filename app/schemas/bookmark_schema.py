@@ -9,7 +9,7 @@ from beanie import PydanticObjectId
 class CreateBookmark(BaseModel):
     # id: int, 몽고db가 자동으로 id 만들어줌
     url: str
-    folderId: Optional[PydanticObjectId] = None
+    # folderId: Optional[PydanticObjectId] = None # AI 자동 분류
     # imageUrl: Optional[str] = None  # 서버 자동생성
     # aiSummary: str # 서버 자동생성
     # like: int = 0
@@ -20,7 +20,7 @@ class CreateBookmark(BaseModel):
             "example": {
                 # "id": 자동생성
                 "url": "string",
-                "folderId": "string",
+                # "folderId": "string",
                 # "imageUrl": "string",
                 # "aiSummary": "string",
                 # "like": 0,
