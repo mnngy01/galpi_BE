@@ -96,7 +96,7 @@ async def add_folder(new_folder: Folder) -> dict:
         "createdAt": folder.createdAt,
     }
 
-# GET folder 전체 목록 
+# GET folder 전체 목록 (최신순)
 async def retrieve_all_folders() -> list:
     folders = await Folder_collection.find_all().sort(-Bookmark.createdAt).to_list()
     return [
@@ -145,11 +145,11 @@ async def retrieve_bookmark(bookmarkId: PydanticObjectId) -> dict:
         }
     
 
-# GET folders/{folderId}/bookmarks 폴더별 북마크 조회
+# GET folders/{folderId}/bookmarks 폴더별 북마크 조회 (최신순)
 async def retrieve_bookmarks_by_folder(folderId: PydanticObjectId):
     bookmarks = await Bookmark.find(
         Bookmark.folderId == folderId
-    ).to_list()
+    ).sort(-Bookmark.createdAt).to_list()
 
     return [
         {
