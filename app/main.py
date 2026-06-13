@@ -15,6 +15,8 @@ from models.member_model import Member
 from models.folder_model import Folder
 from models.bookmark_model import Bookmark
 
+import os
+
 
 
 # mongoDB + Beanie 연결
@@ -22,7 +24,7 @@ from models.bookmark_model import Bookmark
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     client = AsyncIOMotorClient(
-        "mongodb+srv://minji_db_user:minji_pw001@galpi.qqwnswr.mongodb.net/?appName=galpi"
+        os.getenv("MONGODB_URI")
     )
 
     await init_beanie(
