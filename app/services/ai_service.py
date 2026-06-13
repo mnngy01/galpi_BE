@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from google import genai
 
 # API 키 설정 (나중에 .env로 분리 권장)
-GEMINI_API_KEY = "API키는 꼭 빼도록 합시다 깃허브가 차단하기전에..."
+GEMINI_API_KEY = "API 키 삭제하고 커밋"
 
 client = genai.Client(api_key=GEMINI_API_KEY)
 
@@ -31,6 +31,23 @@ async def crawl_url(url: str) -> str:
     # except Exception as e:
     #     return ""  # 크롤링 실패해도 일단 정상 응답
 
+
+async def extract_og_image(url: str) -> str:
+    """URL에서 og:image 태그 추출 → 썸네일 URL 반환"""
+    try:
+        async with httpx.AsyncClient(timeout=10, headers={"User-Agent": "Mozilla/5.0"}) as http_client:
+            response = await http_client.get(url)
+        soup = BeautifulSoup(response.text, "html.parser")
+        
+        # og:image 태그 찾기
+        og_image = soup.find("meta", property="og:image")
+        if og_image and og_image.get("content"):
+            return og_image["content"]
+            
+        return ""
+    except Exception as e:
+        print("썸네일 오류:", e)
+        return ""
 
 async def summarize(text: str) -> str:
     if not text:
@@ -88,12 +105,12 @@ async def crawl_and_summarize(url: str) -> str:
     summary = await summarize(text)
     return summary
 
-async def crawl_summarize_classify(url: str) -> tuple[str, str]:
+async def crawl_summarize_classify(url: str) -> tuple[str, str, str]:
     """
-    URL 크롤링 + 요약 + 관심사 분류 한 번에.
-    반환: (요약문, 관심사 태그)
+    반환: (요약문, 관심사 태그, 썸네일 URL)
     """
     text = await crawl_url(url)
     summary = await summarize(text)
     interest = await classify_interest(text)
-    return summary, interest
+    image_url = await extract_og_image(url)  # 추가
+    return summary, interest, image_url

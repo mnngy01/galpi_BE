@@ -11,10 +11,24 @@ router = APIRouter()
 
 # 백그라운드: AI 요약 + 관심사 자동 분류 → folderId 자동 배정
 async def run_summary_and_classify(bookmark_id: PydanticObjectId, url: str):
-    summary, interest = await crawl_summarize_classify(url)
+    summary, interest, image_url = await crawl_summarize_classify(url)  # 수정
     bookmark = await Bookmark.find_one(Bookmark.id == bookmark_id)
     if not bookmark:
         return
+
+    update_data = {}
+
+    if summary:
+        update_data[Bookmark.aiSummary] = summary
+    if image_url:
+        update_data[Bookmark.imageUrl] = image_url  # 추가
+    if interest:
+        folder = await Folder.find_one(Folder.name == interest)
+        if folder:
+            update_data[Bookmark.folderId] = folder.id
+
+    if update_data:
+        await bookmark.set(update_data)
  
     update_data = {}
 
@@ -47,14 +61,30 @@ async def run_summary_and_classify(bookmark_id: PydanticObjectId, url: str):
 @router.get("/bookmarks/search")
 async def search_bookmarks(q: str):
     try:
+        # $regex로 부분 문자열 검색 (몽고디비 단어 단위 검색 해결, 대소문자 구분 없음)
         bookmarks = await Bookmark.find(
-            {"$text": {"$search": q}}
+            {"$or": [
+                {"aiSummary": {"$regex": q, "$options": "i"}},
+                {"url": {"$regex": q, "$options": "i"}},
+            ]}
         ).to_list()
+
         return {
             "status_code": 200,
             "response_type": "success",
             "description": f"'{q}' 검색 결과",
-            "data": bookmarks,
+            "data": [
+                {
+                    "id": str(b.id),
+                    "url": b.url,
+                    "folderId": str(b.folderId) if b.folderId else None,
+                    "imageUrl": b.imageUrl,
+                    "aiSummary": b.aiSummary,
+                    "like": b.like,
+                    "createdAt": b.createdAt,
+                }
+                for b in bookmarks
+            ],
         }
     except Exception as e:
         return {
