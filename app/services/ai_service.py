@@ -4,7 +4,6 @@ from bs4 import BeautifulSoup
 from google import genai
 import os
 
-print(os.getenv("GEMINI_API_KEY"))
 
 # API 키 설정 (나중에 .env로 분리 권장)
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
