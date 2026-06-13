@@ -42,7 +42,7 @@ class UpdateMember(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "id": 123,
+                # "id": 123,
 	            "name": "김회원",
 	            "loginId": "kimId",
 	            "loginPw": "kimPw", 

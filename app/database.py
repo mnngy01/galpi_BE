@@ -58,7 +58,7 @@ async def update_member(memberId: PydanticObjectId, data: dict) -> dict:
         return None
     await member.set(data)
     return {
-        "id": str(member.id),
+        # "id": str(member.id), --> 파라미터로 받음
         "name": member.name,
         "loginId": member.loginId,
         "birth": member.birth,
@@ -98,7 +98,7 @@ async def add_folder(new_folder: Folder) -> dict:
 
 # GET folder 전체 목록 
 async def retrieve_all_folders() -> list:
-    folders = await Folder_collection.find_all().to_list()
+    folders = await Folder_collection.find_all().sort(-Bookmark.createdAt).to_list()
     return [
         {
             "id": str(f.id),
@@ -194,6 +194,23 @@ async def update_bookmark(bookmarkId: PydanticObjectId, data: dict) -> dict:
         "like": bookmark.like,
         "createdAt": bookmark.createdAt,
     }
+
+# GET bookmark 전체 조회
+async def retrieve_all_bookmarks() -> list:
+    bookmarks = await Bookmark.find_all().sort(-Bookmark.createdAt).to_list()
+
+    return [
+        {
+            "id": str(bookmark.id),
+            "url": bookmark.url,
+            "folderId": str(bookmark.folderId) if bookmark.folderId else None,
+            "imageUrl": bookmark.imageUrl,
+            "aiSummary": bookmark.aiSummary,
+            "like": bookmark.like,
+            "createdAt": bookmark.createdAt,
+        }
+        for bookmark in bookmarks
+    ]
  
 # DELETE bookmark 삭제
 async def delete_bookmark(bookmarkId: PydanticObjectId) -> bool:

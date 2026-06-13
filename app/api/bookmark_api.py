@@ -202,11 +202,11 @@ async def get_bookmark(bookmarkId: PydanticObjectId):
         "description": "잘못된 요청입니다",
     }
 
-# GET 북마크 전체 조회
+# GET 북마크 전체 조회 (최신순)
 @router.get("/bookmarks")
 async def get_bookmarks():
 
-    bookmarks = await Bookmark.find_all().to_list()
+    bookmarks = await database.retrieve_all_bookmarks()
 
     return {
         "status_code": 200,
