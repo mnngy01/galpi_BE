@@ -215,7 +215,7 @@ async def get_bookmarks():
         "data": bookmarks,
     }
 
-# GET 폴더별 북마크 조회
+# GET 북마크 폴더별 조회 (최신순)
 @router.get("/folders/{folderId}/bookmarks")
 async def get_bookmark_by_folder(folderId: PydanticObjectId):
     try:
