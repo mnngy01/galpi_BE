@@ -8,6 +8,7 @@ from schemas.folder_schema import CreateFolder, UpdateFolder
 
 router = APIRouter()
 
+# GET 폴더 전체 조회
 @router.get("/folders")
 async def get_folders():
     folders = await database.retrieve_all_folders()
@@ -18,6 +19,7 @@ async def get_folders():
         "data": folders,
     }
 
+# GET 폴더 (1개) 상세 조회
 @router.get("/folders/{folderId}")
 async def get_folder(folderId: PydanticObjectId):
     folder = await database.retrieve_folder(folderId)
@@ -34,6 +36,7 @@ async def get_folder(folderId: PydanticObjectId):
         "description": "잘못된 요청입니다",
     }
 
+# POST 폴더 등록
 @router.post("/folders")
 async def create_folder(new_folder: CreateFolder):
 
@@ -53,7 +56,8 @@ async def create_folder(new_folder: CreateFolder):
             "response_type": "error",
             "description": f"Error occured: {e}",
         }
-    
+
+# PUT 폴더 수정
 @router.put("/folders/{folderId}")
 async def update_folder(folderId: PydanticObjectId, data: UpdateFolder):
     updated = await database.update_folder(
@@ -73,7 +77,7 @@ async def update_folder(folderId: PydanticObjectId, data: UpdateFolder):
         "description": "잘못된 요청입니다",
     }
  
- 
+ # DELETE 폴더 삭제
 @router.delete("/folders/{folderId}")
 async def delete_folder(folderId: PydanticObjectId):
     deleted = await database.delete_folder(folderId)
