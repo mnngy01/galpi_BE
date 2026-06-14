@@ -61,6 +61,8 @@ async def run_summary_and_classify(bookmark_id: PydanticObjectId, url: str):
             if etc_folder:
                 update_data[Bookmark.folderId] = etc_folder.id
 
+
+# GET 북마크 검색
 @router.get("/bookmarks/search")
 async def search_bookmarks(q: str):
     try:
@@ -96,6 +98,7 @@ async def search_bookmarks(q: str):
             "description": f"Error occured: {e}",
         }
     
+# GET 북마크 추천
 @router.get("/bookmarks/recommend")
 async def recommend_bookmarks(): #  7일 이내 저장된 북마크 제외하고 랜덤 3개 반환
     try:
@@ -141,6 +144,7 @@ async def recommend_bookmarks(): #  7일 이내 저장된 북마크 제외하고
             "description": f"Error occured: {e}",
         }
 
+# GET 북마크 리마인드
 @router.get("/bookmarks/remind")
 async def remind_bookmarks():
     try:
@@ -188,6 +192,7 @@ async def remind_bookmarks():
             "description": f"Error occured: {e}",
         }
 
+# GET 북마크 상세조회
 @router.get("/bookmarks/{bookmarkId}")
 async def get_bookmark(bookmarkId: PydanticObjectId):
     bookmark = await database.retrieve_bookmark(bookmarkId)
@@ -238,6 +243,7 @@ async def get_bookmark_by_folder(folderId: PydanticObjectId):
             "description": f"Error occured: {e}",
         }
 
+# POST 북마크 등록
 @router.post("/bookmarks")
 async def create_bookmark(new_bookmark: CreateBookmark, background_tasks: BackgroundTasks):
     try:
@@ -262,6 +268,7 @@ async def create_bookmark(new_bookmark: CreateBookmark, background_tasks: Backgr
             "description": f"Error occured: {e}",
         }
     
+# POST 북마크 수정
 @router.put("/bookmarks/{bookmarkId}")
 async def update_bookmark(bookmarkId: PydanticObjectId, data: UpdateBookmark):
     updated = await database.update_bookmark(
@@ -280,7 +287,26 @@ async def update_bookmark(bookmarkId: PydanticObjectId, data: UpdateBookmark):
         "response_type": "error",
         "description": "잘못된 요청입니다",
     }
+
+# PUT 북마크 즐겨찾기 (상태 반전)
+@router.patch("/bookmarks/{bookmarkId}/like")
+async def toggle_favorite(bookmarkId: PydanticObjectId):
+    updated = await database.toggle_bookmark_like(bookmarkId)
+
+    if updated:
+        return {
+            "status_code": 200,
+            "response_type": "success",
+            "description": "즐겨찾기 상태 변경 완료",
+            "data": updated,
+        }
+    return {
+        "status_code": 404,
+        "response_type": "error",
+        "description": "잘못된 요청입니다",
+    }
     
+# DELETE 북마크 삭제
 @router.delete("/bookmarks/{bookmarkId}")
 async def delete_bookmark(bookmarkId: PydanticObjectId):
     deleted = await database.delete_bookmark(bookmarkId)
